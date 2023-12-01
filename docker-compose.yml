@@ -1,9 +1,22 @@
 version: '3.9'
 services:
-  service1:
+  servicename:
     build: .
     container_name: node_app
+    depends_on:
+      - servicename1
     ports:
-      - '4000:4000'
+      - '5000:5000'
     volumes:
       - .:/app
+  servicename1:
+     image: 'postgres:latest'
+     container_name: pg_dp
+     ports:
+       - '5432:5432'
+     environment:
+       POSTGRES_PASSWORD: mysecretpassword
+       POSTGRES_USER: 'docker'
+
+
+    

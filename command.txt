@@ -1,0 +1,146 @@
+basic command using 
+create image command
+docker image build -t i14:t14 .
+
+check image command
+docker images
+
+docker create container
+i=image and t=tag
+docker container create --name manjitcont -p 4000:4000 -v ${PWD}:/app i14:t14
+
+docker start by name 
+docker container start manjitcont   
+docker start $(docker ps -a -q)
+
+docker-compose yml file create and then after run command
+docker-compose up -d 
+docker-compose up --build -d 
+
+check the server run 
+docker logs -f manjitcont
+
+
+active docker 
+docker ps
+docker ps -a
+
+all container stop
+docker container stop $(docker ps -q)
+
+
+docker run time  result
+docker exec -it manjitcont /bin/bash
+ls
+
+
+
+docker list check command
+docker ls 
+
+
+remove all docker container 
+docker container stop $(docker ps -a -q)
+docker container rm $(docker ps -a -q)
+
+
+remove all images and container 
+docker system prune -a
+
+upload to docker registry 
+check the container id  command = docker ps
+this is container id 54703f1e6ca9
+docker commit 54703f1e6ca9 manjitsingh1995/nodeapp:1.0.0
+docker push manjitsingh1995/nodeapp:1.0.0 
+
+
+First check
+docker image ls
+docker volume ls
+
+
+clean up space used by docker
+docker system prune -a
+docker volume prune
+
+docker-compose down
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const express = require("express");
+const app = express();
+const env = require('dotenv');
+const { Client } = require('pg');
+
+env.config();
+
+const client = new Client({
+    host: 'servicename1',
+    user: 'docker',
+    database: 'docker',
+    password: 'mysecretpassword',
+    port: 5432
+});
+
+const createTableText = `
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+    CREATE TABLE IF NOT EXISTS users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        data JSONB
+    );
+`;
+
+async function createTable() {
+    try {
+        await client.connect();
+        await client.query(createTableText);
+        console.log('Table created successfully');
+    } catch (err) {
+        console.error('Error creating table:', err);
+    } finally {
+        await client.end(); // Close the connection after table creation
+    }
+}
+
+// Create the table before starting the app
+createTable();
+
+app.get('/', async (req, res) => {
+    try {
+        const newUser = { email: req.query.email };
+        await client.connect(); // Connect before executing queries
+
+        // Insert the new user data into the 'users' table
+        await client.query('INSERT INTO users(data) VALUES($1)', [newUser]);
+
+        // Retrieve all users from the 'users' table
+        const { rows } = await client.query('SELECT * FROM users');
+        console.log(rows);
+
+        res.status(200).send(`<h1>It's working</h1><p>Email: ${req.query.email}</p>`);
+    } catch (err) {
+        console.error('Error handling request:', err);
+        res.status(500).send('An error occurred');
+    } finally {
+        await client.end(); // Close the connection after handling the request
+    }
+});
+
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+    console.log('Listening on port:', port);
+});
