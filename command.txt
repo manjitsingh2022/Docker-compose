@@ -9,7 +9,7 @@ docker create container
 i=image and t=tag
 docker container create --name manjitcont -p 4000:4000 -v ${PWD}:/app i14:t14
 
-docker start by name 
+docker start by name and container id
 docker container start manjitcont   
 docker start $(docker ps -a -q)
 
