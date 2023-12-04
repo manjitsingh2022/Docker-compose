@@ -1,4 +1,6 @@
-basic command using 
+basic command using
+only mac export PATH=$PATH:/Users/developer1/.npm-global/bin 
+
 create image command
 docker image build -t i14:t14 .
 
